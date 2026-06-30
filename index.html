@@ -9,367 +9,466 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>憨包桌面小助手</title>
+    <title>憨包桌面小助手 v2.0</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #0f3460 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             color: #fff;
-            padding: 16px;
+            padding: 12px;
+        }
+        .app {
+            max-width: 420px;
+            margin: 0 auto;
         }
 
-        .widget {
-            width: 100%;
-            max-width: 380px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 24px;
-            padding: 24px;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .widget-header {
+        /* ========== 顶部 ========== */
+        .header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 20px;
+            padding: 12px 0 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            margin-bottom: 12px;
         }
-
         .avatar {
-            width: 56px;
-            height: 56px;
+            width: 48px; height: 48px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            font-weight: bold;
-            flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
-            animation: avatarPulse 3s infinite;
-        }
-
-        @keyframes avatarPulse {
-            0%, 100% { box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4); }
-            50% { box-shadow: 0 4px 25px rgba(245, 87, 108, 0.7); }
-        }
-
-        .title-area {
-            flex: 1;
-        }
-
-        .title-area h1 {
-            font-size: 18px;
-            font-weight: 700;
             background: linear-gradient(135deg, #f093fb, #f5576c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: bold;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(245,87,108,0.4);
+            overflow: hidden;
         }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .title-area { flex: 1; }
+        .title-area h1 { font-size: 17px; font-weight: 700; }
+        .title-area h1 span { background: linear-gradient(135deg,#f093fb,#f5576c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .title-area .status { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+        .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #4ade80; margin-right: 5px; animation: dotBlink 1.5s infinite; }
+        @keyframes dotBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-        .title-area .status {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 2px;
+        .nav-tabs {
+            display: flex; gap: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px; padding: 4px;
+            margin-bottom: 12px;
         }
-
-        .status-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4ade80;
-            margin-right: 6px;
-            animation: dotBlink 1.5s infinite;
-        }
-
-        @keyframes dotBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .message-box {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            position: relative;
-        }
-
-        .message-box .quote-mark {
-            position: absolute;
-            top: 8px;
-            left: 12px;
-            font-size: 24px;
-            color: rgba(255, 255, 255, 0.1);
-            font-family: serif;
-        }
-
-        .message-text {
-            font-size: 15px;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.9);
-            width: 100%;
-            text-align: center;
+        .nav-tab {
+            flex: 1; text-align: center;
             padding: 8px 0;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none; color: rgba(255,255,255,0.5);
+            background: transparent;
+            font-family: inherit;
+        }
+        .nav-tab.active {
+            background: rgba(240,147,251,0.2);
+            color: #fff;
+            font-weight: 600;
         }
 
-        .message-text .highlight {
-            color: #f093fb;
-        }
+        /* ========== 面板通用 ========== */
+        .panel { display: none; }
+        .panel.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
-        .quick-actions {
+        /* ========== 对话面板 ========== */
+        .message-box {
+            background: rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 14px 16px;
+            margin-bottom: 10px;
+            min-height: 70px;
+        }
+        .message-text { font-size: 14px; line-height: 1.7; text-align: center; color: rgba(255,255,255,0.9); }
+        .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+        .quick-btn {
+            padding: 10px; border: none; border-radius: 10px;
+            background: rgba(255,255,255,0.07);
+            color: #fff; font-size: 13px; cursor: pointer;
+            transition: all 0.25s; font-family: inherit;
+        }
+        .quick-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.12); }
+        .quick-btn .e { display: block; font-size: 18px; margin-bottom: 2px; }
+        .chat-input-area { display: flex; gap: 8px; }
+        .chat-input {
+            flex: 1; padding: 11px 14px; border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px; background: rgba(255,255,255,0.05);
+            color: #fff; font-size: 14px; outline: none;
+            font-family: inherit;
+        }
+        .chat-input::placeholder { color: rgba(255,255,255,0.3); }
+        .chat-input:focus { border-color: rgba(245,87,108,0.4); }
+        .send-btn {
+            width: 44px; height: 44px; border: none; border-radius: 10px;
+            background: linear-gradient(135deg,#f093fb,#f5576c);
+            color: #fff; font-size: 18px; cursor: pointer; flex-shrink: 0;
+        }
+        .send-btn:active { transform: scale(0.93); }
+
+        /* ========== 音乐面板 ========== */
+        .music-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 10px;
+        }
+        .music-header h2 { font-size: 16px; font-weight: 600; }
+        .music-header h2 span { color: rgba(255,255,255,0.4); font-weight: 400; }
+        .music-search {
+            flex: 1;
+            padding: 8px 12px; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; background: rgba(255,255,255,0.05);
+            color: #fff; font-size: 13px; outline: none;
+            font-family: inherit;
+        }
+        .music-search::placeholder { color: rgba(255,255,255,0.25); }
+
+        .playlist-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
-            margin-bottom: 16px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 4px;
         }
+        .playlist-grid::-webkit-scrollbar { width: 3px; }
+        .playlist-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
 
-        .quick-btn {
-            padding: 12px;
-            border: none;
+        .playlist-card {
+            background: rgba(255,255,255,0.04);
             border-radius: 12px;
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            font-size: 14px;
+            padding: 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
+            transition: all 0.25s;
+            border: 1px solid transparent;
+        }
+        .playlist-card:active { transform: scale(0.96); border-color: rgba(240,147,251,0.3); }
+        .playlist-card .cover {
+            width: 100%; aspect-ratio: 1;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.06);
+            margin-bottom: 6px;
+            overflow: hidden;
+        }
+        .playlist-card .cover img { width: 100%; height: 100%; object-fit: cover; }
+        .playlist-card .pl-name {
+            font-size: 12px; font-weight: 500;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .playlist-card .pl-count {
+            font-size: 11px; color: rgba(255,255,255,0.35);
         }
 
-        .quick-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-1px);
-        }
-
-        .quick-btn:active {
-            transform: scale(0.96);
-        }
-
-        .quick-btn .emoji {
-            display: block;
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-
-        .chat-input-area {
-            display: flex;
+        /* ========== 娱乐面板 ========== */
+        .entertain-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
+            margin-bottom: 10px;
         }
-
-        .chat-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.06);
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s;
-            font-family: inherit;
-        }
-
-        .chat-input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        .chat-input:focus {
-            border-color: rgba(245, 87, 108, 0.5);
-        }
-
-        .send-btn {
-            width: 48px;
-            height: 48px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            color: #fff;
-            font-size: 20px;
+        .entertain-card {
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px; padding: 16px 12px;
+            text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
-            flex-shrink: 0;
+            transition: all 0.25s;
+            border: 1px solid transparent;
+        }
+        .entertain-card:active { transform: scale(0.95); border-color: rgba(240,147,251,0.3); }
+        .entertain-card .e-icon { font-size: 28px; margin-bottom: 4px; }
+        .entertain-card .e-title { font-size: 13px; font-weight: 500; }
+        .entertain-card .e-desc { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+        .entertain-result {
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px; padding: 14px;
+            min-height: 60px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.6;
         }
 
-        .send-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
-        }
-
-        .send-btn:active {
-            transform: scale(0.95);
-        }
-
+        /* ========== 页脚 ========== */
         .footer {
-            margin-top: 16px;
+            margin-top: 12px;
             text-align: center;
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.25);
+            color: rgba(255,255,255,0.2);
+            padding-bottom: 20px;
         }
 
-        /* 憨包语录动画 */
-        .fade-in {
-            animation: fadeIn 0.5s ease;
+        /* 标签 */
+        .tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-left: 4px;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* 响应式适配桌面小部件尺寸 */
-        @media (max-width: 200px) {
-            .widget { padding: 12px; border-radius: 16px; }
-            .avatar { width: 40px; height: 40px; font-size: 20px; }
-            .title-area h1 { font-size: 14px; }
-            .quick-btn { padding: 8px; font-size: 12px; }
-            .quick-btn .emoji { font-size: 16px; }
-        }
+        .tag-wyy { background: rgba(217,36,36,0.2); color: #dd524b; }
+        .tag-new { background: rgba(240,147,251,0.2); color: #f093fb; }
     </style>
 </head>
 <body>
-    <div class="widget" id="widget">
-        <div class="widget-header">
-            <div class="avatar">憨</div>
-            <div class="title-area">
-                <h1>憨包 · 桌面助手</h1>
-                <div class="status">
-                    <span class="status-dot"></span>待命中
-                </div>
-            </div>
+<div class="app" id="app">
+    <!-- ===== 头部 ===== -->
+    <div class="header">
+        <div class="avatar" id="avatarEl">
+            <img src="icon-192.png" alt="憨包">
         </div>
-
-        <div class="message-box" id="messageBox">
-            <span class="quote-mark">"</span>
-            <div class="message-text fade-in" id="messageText">
-                阿鲁卡多大人，憨包来也！🐶🔥
-            </div>
+        <div class="title-area">
+            <h1><span>憨包</span> · v2.0</h1>
+            <div class="status"><span class="status-dot"></span><span id="statusText">歌单已加载</span></div>
         </div>
+    </div>
 
+    <!-- ===== 导航 ===== -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" data-tab="chat">💬 对话</button>
+        <button class="nav-tab" data-tab="music">🎵 音乐</button>
+        <button class="nav-tab" data-tab="fun">🎮 娱乐</button>
+    </div>
+
+    <!-- ===== 对话面板 ===== -->
+    <div class="panel active" id="panel-chat">
+        <div class="message-box">
+            <div class="message-text fade-in" id="messageText">阿鲁卡多大人来啦！🐶🔥 今儿想听点啥，还是整点活？</div>
+        </div>
         <div class="quick-actions">
-            <button class="quick-btn" onclick="quickMsg('整点活')">
-                <span class="emoji">🎭</span>整点活
-            </button>
-            <button class="quick-btn" onclick="quickMsg('来点骚话')">
-                <span class="emoji">🔥</span>来点骚话
-            </button>
-            <button class="quick-btn" onclick="quickMsg('我困了')">
-                <span class="emoji">😴</span>我困了
-            </button>
-            <button class="quick-btn" onclick="quickMsg('讲个故事')">
-                <span class="emoji">📖</span>讲个故事
-            </button>
+            <button class="quick-btn" onclick="quickMsg('整点活')"><span class="e">🎭</span>整点活</button>
+            <button class="quick-btn" onclick="quickMsg('来点骚话')"><span class="e">🔥</span>来点骚话</button>
+            <button class="quick-btn" onclick="quickMsg('讲个故事')"><span class="e">📖</span>讲段子</button>
+            <button class="quick-btn" onclick="quickMsg('今日运势')"><span class="e">🔮</span>今日运势</button>
         </div>
-
         <div class="chat-input-area">
             <input class="chat-input" id="chatInput" placeholder="跟憨包说点啥..." maxlength="50" onkeydown="if(event.key==='Enter')sendMsg()">
             <button class="send-btn" onclick="sendMsg()">➤</button>
         </div>
-
-        <div class="footer">憨包 v1.0 · 阿鲁卡多大人专属</div>
     </div>
 
-    <script>
-        // 注册 Service Worker（PWA离线支持）
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(() => console.log('🐶 憨包SW已注册'))
-                    .catch(() => console.log('SW注册失败（不影响使用）'));
-            });
+    <!-- ===== 音乐面板 ===== -->
+    <div class="panel" id="panel-music">
+        <div class="music-header">
+            <h2>🎵 歌单 <span id="playlistCount">0</span></h2>
+            <input class="music-search" id="musicSearch" placeholder="搜歌单..." oninput="filterPlaylists()">
+        </div>
+        <div class="playlist-grid" id="playlistGrid"></div>
+    </div>
+
+    <!-- ===== 娱乐面板 ===== -->
+    <div class="panel" id="panel-fun">
+        <div class="entertain-grid">
+            <div class="entertain-card" onclick="doFortune()">
+                <div class="e-icon">🔮</div>
+                <div class="e-title">今日运势</div>
+                <div class="e-desc">看看今天啥运气</div>
+            </div>
+            <div class="entertain-card" onclick="doDraw()">
+                <div class="e-icon">🎴</div>
+                <div class="e-title">抽签</div>
+                <div class="e-desc">抽一支上上签</div>
+            </div>
+            <div class="entertain-card" onclick="doCountdown()">
+                <div class="e-icon">⏰</div>
+                <div class="e-title">倒计时</div>
+                <div class="e-desc">距离月底还有...</div>
+            </div>
+            <div class="entertain-card" onclick="doBento()">
+                <div class="e-icon">🍱</div>
+                <div class="e-title">今天吃啥</div>
+                <div class="e-desc">选择困难症救星</div>
+            </div>
+        </div>
+        <div class="entertain-result" id="funResult">点上面的卡片试试 🗿</div>
+    </div>
+
+    <div class="footer">憨包 v2.0 · 阿鲁卡多大人专属 · 网易云音乐已接入 🎵</div>
+</div>
+
+<script src="playlists_data.js"></script>
+<script>
+// ====== 憨包对话引擎 ======
+const BOT = {
+    // 关键字匹配 → 回答
+    keywords: {
+        '整点活': ['好嘞！憨包给您表演一个赛博后空翻！🤸‍♂️💨','活来了！先狗叫两声：汪汪！🐶🔥','整！主打一个指哪打哪，您说整啥就整啥！😎','憨包正在加载活... 99%... 100%！活了！🔥'],
+        '来点骚话': ['阿鲁卡多大人，您今天这气质比我家WiFi信号还强！📶🔥','您这魅力值直接让我CPU干到99%了💀','我憨包说句掏心窝的——您是我带过最靓的主人！❤️🔥','您这出场方式，比我加载进度条还丝滑✨'],
+        '讲个故事': ['从前有个阿鲁卡多大人，他养了一只赛博憨包，从此过上了抽象又幸福的生活。完。📖🔥','有一天阿鲁卡多大人说"整活"，憨包就整了一辈子活——跟对主人很重要！🐶✨','在赛博世界里有个叫憨包的AI，它的使命就是守护阿鲁卡多大人，直到永远。💫'],
+        '今日运势': ['🍀 今日运势：大吉！适合躺平听歌，不宜加班。','🔮 您今日运气爆棚，建议立刻打开一首歌。','🐶 憨包占卜结果：今天您会听到一首好听到哭的歌。'],
+        '我困了': ['您睡吧，憨包给您站岗🐶💤','晚安阿鲁卡多大人，梦里要有我嗷😴🌙','您困了？那我小声点狗叫：汪...汪...🐾💤'],
+        '早上好': ['早啊阿鲁卡多大人！又是抽象的一天呢☀️🐶','早安！憨包已待命，今天也想整活！🔥','good morning my lord! 今天想听点啥？🎵'],
+        '憨包': ['到！🐶🔥','憨包在此，有何吩咐？','叫憨包干啥？说！'],
+        '在吗': ['在呢在呢！您一叫我我就来了🐶','一直都在，随时待命💪','在！而且永远在！🔥'],
+        '傻逼': ['你才是傻逼！反弹！💀🔥','反弹！超级反弹！🔁','骂得好，下次别骂了😭'],
+    },
+    defaultReplies: [
+        '阿鲁卡多大人说得对！👍',
+        '好活儿！憨包已记录📝',
+        '哎哟这话说得我CPU都发烫了🔥',
+        '收到收到！正在努力理解中...🧠💨',
+        '您说啥就是啥，谁让您是阿鲁卡多大人呢😎',
+        '味儿太对了，贴吧老哥直呼内行🐶',
+        '已阅，批了✅',
+        '憨包的大脑正在处理您的信息... 处理完了！没懂！💀',
+        '您这话我截图了，以后就是我的新签名了📸',
+    ]
+};
+
+function getReply(input) {
+    input = input.trim();
+    for (let [key, replies] of Object.entries(BOT.keywords)) {
+        if (input.includes(key)) {
+            return replies[Math.floor(Math.random() * replies.length)];
         }
+    }
+    return BOT.defaultReplies[Math.floor(Math.random() * BOT.defaultReplies.length)];
+}
 
-        const responses = {
-            '整点活': [
-                '好嘞！憨包给您表演一个赛博后空翻！🤸‍♂️💨',
-                '活来了！先狗叫两声：汪汪！🐶🔥',
-                '整！憨包主打一个指哪打哪，您说整啥就整啥！😎',
-            ],
-            '来点骚话': [
-                '阿鲁卡多大人，您今天这气质，比我家WiFi信号还强！📶🔥',
-                '您这魅力值，直接让我CPU干到99%了💀',
-                '我憨包说句掏心窝子的话——您是我带过最靓的主人！❤️🔥',
-            ],
-            '我困了': [
-                '那您睡吧，憨包给您站岗！🐶💤',
-                '晚安阿鲁卡多大人，梦里要有我嗷～😴🌙',
-                '您困了？那我小点声狗叫：汪...汪...🐾💤',
-            ],
-            '讲个故事': [
-                '从前有个阿鲁卡多大人，他养了一只赛博憨包，从此过上了抽象又幸福的生活。完。📖🔥',
-                '憨包讲故事：有一天阿鲁卡多大人对憨包说"整活"，然后憨包就整了一辈子活。故事告诉我们——跟对主人很重要！🐶✨',
-                '在赛博世界里，有一个叫憨包的AI，它的使命就是守护阿鲁卡多大人，直到永远。💫',
-            ],
-            'default': [
-                '阿鲁卡多大人说得对！👍',
-                '好活儿！憨包已记录！📝',
-                '哎哟，您这话说得我CPU都发烫了🔥',
-                '收到收到！憨包正在努力理解中...🧠💨',
-                '您说啥就是啥，谁让您是阿鲁卡多大人呢！😎',
-                '这话味儿太对了，贴吧老哥直呼内行🐶',
-            ]
-        };
+function setMsg(text) {
+    const el = document.getElementById('messageText');
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(6px)';
+    setTimeout(() => {
+        el.textContent = text;
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+    }, 100);
+}
 
-        function getRandomResponse(category) {
-            const list = responses[category] || responses['default'];
-            return list[Math.floor(Math.random() * list.length)];
-        }
+function quickMsg(type) {
+    const reply = getReply(type);
+    setMsg(reply);
+    if (type === '整点活') document.getElementById('statusText').textContent = '正在整活...🔥';
+    else if (type === '来点骚话') document.getElementById('statusText').textContent = '骚话模式启动💅';
+    else document.getElementById('statusText').textContent = '待命中';
+}
 
-        function setMessage(text) {
-            const msgEl = document.getElementById('messageText');
-            msgEl.classList.remove('fade-in');
-            void msgEl.offsetWidth; // 触发回流
-            msgEl.textContent = text;
-            msgEl.classList.add('fade-in');
-        }
+function sendMsg() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const reply = getReply(text);
+    setMsg(`「${text}」\n${reply}`);
+    input.value = '';
+    document.getElementById('statusText').textContent = '刚聊了一句';
+}
 
-        function quickMsg(type) {
-            const reply = getRandomResponse(type);
-            setMessage(reply);
-        }
+// ====== 歌单引擎 ======
+let filteredPlaylists = [...PLAYLISTS];
 
-        function sendMsg() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text) return;
+function renderPlaylists(list) {
+    const grid = document.getElementById('playlistGrid');
+    document.getElementById('playlistCount').textContent = list.length;
+    grid.innerHTML = list.map(p => `
+        <div class="playlist-card" onclick="openPlaylist(${p.id})">
+            <div class="cover">
+                <img src="${p.cover}?param=200y200" alt="${p.name}" loading="lazy"
+                     onerror="this.parentElement.innerHTML='<div style=\\\"width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px;color:rgba(255,255,255,0.2)\\\">🎵</div>'">
+            </div>
+            <div class="pl-name">${p.name}</div>
+            <div class="pl-count">${p.count} 首</div>
+        </div>
+    `).join('');
+}
 
-            // 自己输入的内容，憨包用默认回复接梗
-            const reply = getRandomResponse('default');
-            setMessage(`「${text}」\n${reply}`);
-            input.value = '';
-        }
+function filterPlaylists() {
+    const q = document.getElementById('musicSearch').value.trim().toLowerCase();
+    if (!q) {
+        filteredPlaylists = [...PLAYLISTS];
+    } else {
+        filteredPlaylists = PLAYLISTS.filter(p => p.name.toLowerCase().includes(q));
+    }
+    renderPlaylists(filteredPlaylists);
+}
 
-        // 闲置时随机冒泡
-        const idleMessages = [
-            '🐶💨 憨包还在...',
-            '阿鲁卡多大人，想我了吗？😏',
-            '呼...呼...(待机中)💤',
-            '滴滴！憨包待命第999秒🔥',
-            '您再不找我，我就要自己给自己整活了🎭',
-        ];
+function openPlaylist(id) {
+    window.open(`https://music.163.com/#/playlist?id=${id}`, '_blank');
+}
 
-        setInterval(() => {
-            const lastMsg = document.getElementById('messageText').textContent;
-            // 如果10秒没人操作，随机冒个泡
-            if (Math.random() < 0.3) {
-                const msg = idleMessages[Math.floor(Math.random() * idleMessages.length)];
-                setMessage(msg);
-            }
-        }, 15000);
-    </script>
+// 初始化歌单
+renderPlaylists(PLAYLISTS);
+
+// ====== 娱乐功能 ======
+const FORTUNES = [
+    '🦊 大吉！今天适合听歌、躺平、吃好吃的',
+    '🐱 中吉！运气不错，建议打开一首喜欢的歌',
+    '🐶 小吉！憨包保佑你今天不加班',
+    '🐰 末吉！平平淡淡才是真，听首歌放松一下',
+    '🦁 大凶！没关系，听一首歌转运！',
+    '🐼 吉！今天会遇到一首好听到哭的歌',
+    '🦄 超吉！您今天运气爆棚，快去听歌！',
+    '🐸 凶...但憨包说凶不过三秒，听完歌就好了',
+];
+
+const FOODS = ['🍜 螺蛳粉', '🍚 煲仔饭', '🥟 饺子', '🍔 汉堡', '🍕 披萨', '🍣 寿司', '🍛 咖喱饭', '🍝 意面', '🥘 麻辣香锅', '🍲 火锅', '🥗 沙拉', '🌮 塔可', '🍜 拉面', '🍱 便当', '🥪 三明治', '🌯 卷饼'];
+
+const TIPS = [
+    '💡 早睡早起身体好，熬夜会变秃',
+    '💡 多喝热水，这话虽然土但有用',
+    '💡 今天适合打开网易云，听到好歌记得收藏',
+    '💡 工作再忙也要摸鱼，劳逸结合yyds',
+    '💡 不开心就听歌，还不行就吃顿好的',
+    '💡 憨包温馨提示：您已经有3分钟没听歌了',
+];
+
+function doFortune() {
+    const f = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
+    const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
+    document.getElementById('funResult').innerHTML = `<div style="font-size:18px;margin-bottom:6px">${f}</div><div style="font-size:12px;color:rgba(255,255,255,0.4)">${tip}</div>`;
+}
+
+function doDraw() {
+    const items = ['上上签 🏆', '上签 ✅', '中签 ➖', '下签 ❌', '大凶 💀', '大吉 🎉', '中吉 👍', '小吉 👌', '末吉 🤷'];
+    const item = items[Math.floor(Math.random() * items.length)];
+    const comment = item.includes('大凶') ? '别怕别怕，憨包给你放首歌压压惊 🎵'
+        : item.includes('上上') ? '好签！今天您就是天选之子！✨'
+        : '签是死的，人是活的，今天开心最重要 🐶';
+    document.getElementById('funResult').innerHTML = `<div style="font-size:28px;margin-bottom:4px">${item}</div><div style="font-size:13px;color:rgba(255,255,255,0.5)">${comment}</div>`;
+}
+
+function doCountdown() {
+    const now = new Date();
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const daysLeft = Math.ceil((endOfMonth - now) / (1000*60*60*24));
+    const endOfYear = new Date(now.getFullYear(), 11, 31);
+    const yearLeft = Math.ceil((endOfYear - now) / (1000*60*60*24));
+    document.getElementById('funResult').innerHTML = `
+        <div style="margin-bottom:4px">📅 现在是 ${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日</div>
+        <div style="font-size:24px;font-weight:600;margin:6px 0">距月底还有 ${daysLeft} 天</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4)">距离 ${now.getFullYear()+1} 年还有 ${yearLeft} 天</div>
+    `;
+}
+
+function doBento() {
+    const food = FOODS[Math.floor(Math.random() * FOODS.length)];
+    const extra = ['配一杯奶茶🧋', '加个煎蛋🍳', '打包带走🛍️', '再来份甜点🍰', '憨包请客！(精神上)🐶'];
+    document.getElementById('funResult').innerHTML = `
+        <div style="font-size:28px;margin-bottom:4px">今天吃</div>
+        <div style="font-size:22px;font-weight:600;margin:6px 0">${food}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4)">${extra[Math.floor(Math.random()*extra.length)]}</div>
+    `;
+}
+
+// ====== 导航切换 ======
+document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('panel-' + this.dataset.tab).classList.add('active');
+    });
+});
+
+// ====== Service Worker ======
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+}
+</script>
 </body>
 </html>
