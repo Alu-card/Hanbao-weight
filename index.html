@@ -219,6 +219,87 @@
   }
   .tag-wyy { background: rgba(217,36,36,0.2); color: #dd524b; }
   .tag-new { background: rgba(240,147,251,0.2); color: #f093fb; }
+
+  /* ========== B站面板 ========== */
+  .bili-header { margin-bottom: 10px; }
+  .bili-user {
+   display: flex; align-items: center; gap: 12px;
+   background: rgba(255,255,255,0.04);
+   border-radius: 12px; padding: 12px;
+   cursor: pointer;
+   transition: all 0.25s;
+  }
+  .bili-user:active { transform: scale(0.97); background: rgba(255,255,255,0.07); }
+  .bili-avatar {
+   width: 44px; height: 44px;
+   border-radius: 50%;
+   background: linear-gradient(135deg, #fb7299, #00a1d6);
+   display: flex; align-items: center; justify-content: center;
+   font-size: 18px; font-weight: 700;
+   flex-shrink: 0;
+  }
+  .bili-info { flex: 1; }
+  .bili-name { font-size: 15px; font-weight: 600; }
+  .bili-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+  .bili-search-area {
+   display: flex; gap: 8px;
+   margin-bottom: 10px;
+  }
+  .bili-search {
+   flex: 1; padding: 10px 12px;
+   border: 1px solid rgba(255,255,255,0.1);
+   border-radius: 8px; background: rgba(255,255,255,0.05);
+   color: #fff; font-size: 13px; outline: none;
+   font-family: inherit;
+  }
+  .bili-search::placeholder { color: rgba(255,255,255,0.25); }
+  .bili-search:focus { border-color: rgba(251,114,153,0.4); }
+  .bili-search-btn {
+   padding: 10px 16px; border: none; border-radius: 8px;
+   background: linear-gradient(135deg, #fb7299, #00a1d6);
+   color: #fff; font-size: 13px; font-weight: 500;
+   cursor: pointer; font-family: inherit;
+  }
+  .bili-search-btn:active { transform: scale(0.95); }
+
+  .bili-links {
+   display: grid; grid-template-columns: 1fr 1fr;
+   gap: 8px; margin-bottom: 10px;
+  }
+  .bili-link-card {
+   background: rgba(255,255,255,0.04);
+   border-radius: 10px; padding: 14px 10px;
+   text-align: center;
+   cursor: pointer; transition: all 0.25s;
+   border: 1px solid transparent;
+  }
+  .bili-link-card:active { transform: scale(0.95); border-color: rgba(251,114,153,0.3); }
+  .bili-link-title { font-size: 13px; font-weight: 500; }
+  .bili-link-desc { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+
+  .bili-hot {
+   background: rgba(255,255,255,0.03);
+   border-radius: 10px; padding: 12px;
+  }
+  .bili-hot-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .bili-hot-item {
+   display: flex; align-items: center; gap: 8px;
+   padding: 6px 0;
+   font-size: 12px; cursor: pointer;
+   transition: opacity 0.2s;
+  }
+  .bili-hot-item:active { opacity: 0.6; }
+  .bili-hot-rank {
+   width: 18px; text-align: center;
+   font-weight: 700; font-size: 11px;
+   flex-shrink: 0;
+  }
+  .bili-hot-rank.top3 { color: #fb7299; }
+  .bili-hot-text {
+   flex: 1;
+   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
  </style>
 </head>
 <body>
@@ -238,6 +319,7 @@
  <div class="nav-tabs">
   <button class="nav-tab active" data-tab="chat">对话</button>
   <button class="nav-tab" data-tab="music">音乐</button>
+  <button class="nav-tab" data-tab="bili">B站</button>
   <button class="nav-tab" data-tab="fun">娱乐</button>
  </div>
 
@@ -265,6 +347,45 @@
    <input class="music-search" id="musicSearch" placeholder="搜歌单..." oninput="filterPlaylists()">
   </div>
   <div class="playlist-grid" id="playlistGrid"></div>
+ </div>
+
+ <!-- ===== B站面板 ===== -->
+ <div class="panel" id="panel-bili">
+  <div class="bili-header">
+   <div class="bili-user" onclick="window.open('https://space.bilibili.com/122627054','_blank')">
+    <div class="bili-avatar">D</div>
+    <div class="bili-info">
+     <div class="bili-name">丹德里恩的小曲</div>
+     <div class="bili-sub">点击进入个人空间</div>
+    </div>
+   </div>
+  </div>
+  <div class="bili-search-area">
+   <input class="bili-search" id="biliSearch" placeholder="搜B站视频..." maxlength="50" onkeydown="if(event.key==='Enter')biliSearch()">
+   <button class="bili-search-btn" onclick="biliSearch()">搜索</button>
+  </div>
+  <div class="bili-links">
+   <div class="bili-link-card" onclick="window.open('https://space.bilibili.com/122627054/video','_blank')">
+    <div class="bili-link-title">我的投稿</div>
+    <div class="bili-link-desc">看看我发了啥</div>
+   </div>
+   <div class="bili-link-card" onclick="window.open('https://space.bilibili.com/122627054/favlist','_blank')">
+    <div class="bili-link-title">我的收藏</div>
+    <div class="bili-link-desc">收藏夹里的宝贝</div>
+   </div>
+   <div class="bili-link-card" onclick="window.open('https://www.bilibili.com/v/popular/rank/all','_blank')">
+    <div class="bili-link-title">热门排行</div>
+    <div class="bili-link-desc">B站全站热门</div>
+   </div>
+   <div class="bili-link-card" onclick="window.open('https://www.bilibili.com','_blank')">
+    <div class="bili-link-title">B站首页</div>
+    <div class="bili-link-desc">回B站逛逛</div>
+   </div>
+  </div>
+  <div class="bili-hot" id="biliHot">
+   <div class="bili-hot-title">B站热搜</div>
+   <div class="bili-hot-list" id="biliHotList">加载中...</div>
+  </div>
  </div>
 
  <!-- ===== 娱乐面板 ===== -->
@@ -466,6 +587,43 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
   document.getElementById('panel-' + this.dataset.tab).classList.add('active');
  });
 });
+
+// ====== B站功能 ======
+// 搜B站视频 - 跳转B站搜索结果页
+function biliSearch() {
+ const q = document.getElementById('biliSearch').value.trim();
+ if (!q) return;
+ window.open(`https://search.bilibili.com/all?keyword=${encodeURIComponent(q)}`, '_blank');
+}
+
+// 热搜数据
+const BILI_HOT = [
+ '黑神话悟空新DLC预告', '肖战新剧开播', '张颂文新片定档',
+ '大学生毕业季 2026', '周深演唱会 成都站', '原神 6.0版本前瞻',
+ '歌手2026 总决赛', '小米MIX Fold 4 发布', '乘风破浪的姐姐 第六季',
+ '长相思 第三季', '华为三折叠屏 2代', '林俊杰 新专辑',
+ 'BLG 夺冠 MSI 2026', '封神第二部 预告', '哪吒之魔童闹海 定档',
+ '崩坏星穹铁道 3.0', '王者荣耀 S40赛季', 'Bilibili World 2026 官宣',
+ '鞠婧祎 新剧路透', '周杰伦 嘉年华 2026'
+];
+
+function loadBiliHot() {
+ const list = document.getElementById('biliHotList');
+ const hot = [...BILI_HOT].sort(() => Math.random() - 0.5).slice(0, 10);
+ list.innerHTML = hot.map((h, i) => `
+  <div class="bili-hot-item" onclick="window.open('https://search.bilibili.com/all?keyword=${encodeURIComponent(h)}','_blank')">
+   <div class="bili-hot-rank ${i < 3 ? 'top3' : ''}">${i + 1}</div>
+   <div class="bili-hot-text">${h}</div>
+  </div>
+ `).join('');
+}
+
+// 切到B站tab时刷新热搜
+document.querySelector('[data-tab="bili"]').addEventListener('click', function() {
+ setTimeout(loadBiliHot, 100);
+});
+
+// 初始化热搜（当前激活的是chat tab，先不加载）
 
 // ====== Service Worker ======
 if ('serviceWorker' in navigator) {
