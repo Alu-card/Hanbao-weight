@@ -355,6 +355,149 @@
    top: 0; left: 0; width: 100%; height: 100%;
    border: none;
   }
+
+  /* ========== 视频墙模式 ========== */
+  .bili-mode-tabs {
+   display: flex; gap: 4px;
+   background: rgba(255,255,255,0.05);
+   border-radius: 8px; padding: 3px;
+   margin-bottom: 10px;
+  }
+  .bili-mode-tab {
+   flex: 1; text-align: center;
+   padding: 6px 0;
+   border-radius: 6px;
+   font-size: 12px;
+   cursor: pointer;
+   transition: all 0.25s;
+   border: none; color: rgba(255,255,255,0.5);
+   background: transparent;
+   font-family: inherit;
+  }
+  .bili-mode-tab.active {
+   background: rgba(251,114,153,0.25);
+   color: #fff;
+   font-weight: 600;
+  }
+  .bili-mode-content { display: none; }
+  .bili-mode-content.active { display: block; animation: fadeIn 0.25s ease; }
+
+  /* 视频墙头部 */
+  .bili-wall-header {
+   display: flex; flex-direction: column; gap: 8px;
+   margin-bottom: 10px;
+  }
+  .bili-wall-tabs {
+   display: flex; gap: 6px;
+  }
+  .bili-wall-tab {
+   flex: 1; padding: 8px 0;
+   border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+   background: rgba(255,255,255,0.04);
+   color: #fff; font-size: 12px; cursor: pointer;
+   font-family: inherit; transition: all 0.25s;
+  }
+  .bili-wall-tab.active {
+   background: rgba(251,114,153,0.2);
+   border-color: rgba(251,114,153,0.3);
+   font-weight: 600;
+  }
+  .bili-wall-tab:active { transform: scale(0.96); }
+  .bili-wall-search {
+   padding: 10px 12px;
+   border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+   background: rgba(255,255,255,0.05);
+   color: #fff; font-size: 13px; outline: none;
+   font-family: inherit;
+  }
+  .bili-wall-search::placeholder { color: rgba(255,255,255,0.25); }
+  .bili-wall-search:focus { border-color: rgba(251,114,153,0.4); }
+
+  /* 视频墙网格 */
+  .bili-wall-grid {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   gap: 10px;
+   max-height: 70vh;
+   overflow-y: auto;
+   padding-right: 4px;
+  }
+  .bili-wall-grid::-webkit-scrollbar { width: 3px; }
+  .bili-wall-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+  .bili-wall-empty {
+   grid-column: 1 / -1;
+   text-align: center;
+   padding: 40px 0;
+   font-size: 13px;
+   color: rgba(255,255,255,0.35);
+  }
+
+  .bili-wall-card {
+   background: rgba(255,255,255,0.04);
+   border-radius: 12px;
+   overflow: hidden;
+   cursor: pointer;
+   transition: all 0.25s;
+   border: 1px solid transparent;
+  }
+  .bili-wall-card:active { transform: scale(0.96); border-color: rgba(251,114,153,0.3); }
+  .bili-wall-cover {
+   width: 100%;
+   aspect-ratio: 16/9;
+   background: rgba(255,255,255,0.06);
+   overflow: hidden;
+   position: relative;
+  }
+  .bili-wall-cover img {
+   width: 100%; height: 100%;
+   object-fit: cover;
+  }
+  .bili-wall-cover .bili-wall-dur {
+   position: absolute;
+   bottom: 4px; right: 4px;
+   background: rgba(0,0,0,0.7);
+   padding: 1px 5px;
+   border-radius: 3px;
+   font-size: 10px;
+  }
+  .bili-wall-info {
+   padding: 8px;
+  }
+  .bili-wall-vtitle {
+   font-size: 12px;
+   font-weight: 500;
+   display: -webkit-box;
+   -webkit-line-clamp: 2;
+   -webkit-box-orient: vertical;
+   overflow: hidden;
+   line-height: 1.4;
+   margin-bottom: 4px;
+  }
+  .bili-wall-meta {
+   display: flex; gap: 8px;
+   font-size: 10px;
+   color: rgba(255,255,255,0.35);
+  }
+  .bili-wall-loading {
+   grid-column: 1 / -1;
+   text-align: center;
+   padding: 20px;
+   color: rgba(255,255,255,0.3);
+   font-size: 13px;
+  }
+  .bili-wall-loading::after {
+   content: '';
+   display: inline-block;
+   width: 14px; height: 14px;
+   border: 2px solid rgba(255,255,255,0.1);
+   border-top-color: #fb7299;
+   border-radius: 50%;
+   animation: spin 0.8s linear infinite;
+   margin-left: 6px;
+   vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
  </style>
 </head>
 <body>
@@ -406,44 +549,67 @@
 
  <!-- ===== B站面板 ===== -->
  <div class="panel" id="panel-bili">
-  <div class="bili-header">
-   <div class="bili-user" onclick="embedOpen('https://space.bilibili.com/122627054')">
-    <div class="bili-avatar">D</div>
-    <div class="bili-info">
-     <div class="bili-name">丹德里恩的小曲</div>
-     <div class="bili-sub">点击进入个人空间（嵌入式）</div>
+  <!-- 模式切换 -->
+  <div class="bili-mode-tabs">
+   <button class="bili-mode-tab active" data-bili-mode="browse" onclick="switchBiliMode('browse')">浏览</button>
+   <button class="bili-mode-tab" data-bili-mode="wall" onclick="switchBiliMode('wall')">视频墙</button>
+  </div>
+
+  <!-- ===== 浏览模式 ===== -->
+  <div class="bili-mode-content active" id="biliMode-browse">
+   <div class="bili-header">
+    <div class="bili-user" onclick="embedOpen('https://space.bilibili.com/122627054')">
+     <div class="bili-avatar">D</div>
+     <div class="bili-info">
+      <div class="bili-name">丹德里恩的小曲</div>
+      <div class="bili-sub">点击进入个人空间</div>
+     </div>
     </div>
    </div>
-  </div>
-  <div class="bili-search-area">
-   <input class="bili-search" id="biliSearch" placeholder="搜B站视频..." maxlength="50" onkeydown="if(event.key==='Enter')biliSearch()">
-   <button class="bili-search-btn" onclick="biliSearch()">搜索</button>
-  </div>
-  <div class="bili-bv-area">
-   <input class="bili-search" id="biliBvInput" placeholder="输入BV号直接播放..." maxlength="20" onkeydown="if(event.key==='Enter')playBv()">
-   <button class="bili-search-btn" onclick="playBv()">播放</button>
-  </div>
-  <div class="bili-links">
-   <div class="bili-link-card" onclick="embedOpen('https://space.bilibili.com/122627054/video')">
-    <div class="bili-link-title">我的投稿</div>
-    <div class="bili-link-desc">嵌入式浏览</div>
+   <div class="bili-search-area">
+    <input class="bili-search" id="biliSearch" placeholder="搜B站视频..." maxlength="50" onkeydown="if(event.key==='Enter')biliSearch()">
+    <button class="bili-search-btn" onclick="biliSearch()">搜索</button>
    </div>
-   <div class="bili-link-card" onclick="embedOpen('https://space.bilibili.com/122627054/favlist')">
-    <div class="bili-link-title">我的收藏</div>
-    <div class="bili-link-desc">嵌入式浏览</div>
+   <div class="bili-bv-area">
+    <input class="bili-search" id="biliBvInput" placeholder="输入BV号直接播放..." maxlength="20" onkeydown="if(event.key==='Enter')playBv()">
+    <button class="bili-search-btn" onclick="playBv()">播放</button>
    </div>
-   <div class="bili-link-card" onclick="embedOpen('https://www.bilibili.com/v/popular/rank/all')">
-    <div class="bili-link-title">热门排行</div>
-    <div class="bili-link-desc">嵌入式浏览</div>
+   <div class="bili-links">
+    <div class="bili-link-card" onclick="embedOpen('https://space.bilibili.com/122627054/video')">
+     <div class="bili-link-title">我的投稿</div>
+     <div class="bili-link-desc">嵌入式浏览</div>
+    </div>
+    <div class="bili-link-card" onclick="embedOpen('https://space.bilibili.com/122627054/favlist')">
+     <div class="bili-link-title">我的收藏</div>
+     <div class="bili-link-desc">嵌入式浏览</div>
+    </div>
+    <div class="bili-link-card" onclick="embedOpen('https://www.bilibili.com/v/popular/rank/all')">
+     <div class="bili-link-title">热门排行</div>
+     <div class="bili-link-desc">嵌入式浏览</div>
+    </div>
+    <div class="bili-link-card" onclick="embedOpen('https://www.bilibili.com')">
+     <div class="bili-link-title">B站首页</div>
+     <div class="bili-link-desc">嵌入式浏览</div>
+    </div>
    </div>
-   <div class="bili-link-card" onclick="embedOpen('https://www.bilibili.com')">
-    <div class="bili-link-title">B站首页</div>
-    <div class="bili-link-desc">嵌入式浏览</div>
+   <div class="bili-hot" id="biliHot">
+    <div class="bili-hot-title">B站热搜（点击嵌入式播放）</div>
+    <div class="bili-hot-list" id="biliHotList">加载中...</div>
    </div>
   </div>
-  <div class="bili-hot" id="biliHot">
-   <div class="bili-hot-title">B站热搜（点击嵌入式播放）</div>
-   <div class="bili-hot-list" id="biliHotList">加载中...</div>
+
+  <!-- ===== 视频墙模式 ===== -->
+  <div class="bili-mode-content" id="biliMode-wall">
+   <div class="bili-wall-header">
+    <div class="bili-wall-tabs">
+     <button class="bili-wall-tab active" onclick="loadWall('upload')">我的投稿</button>
+     <button class="bili-wall-tab" onclick="loadWall('popular')">热门</button>
+    </div>
+    <input class="bili-wall-search" id="biliWallSearch" placeholder="搜视频..." maxlength="50" onkeydown="if(event.key==='Enter')loadWall('search')">
+   </div>
+   <div class="bili-wall-grid" id="biliWallGrid">
+    <div class="bili-wall-empty">点「我的投稿」或「热门」加载视频</div>
+   </div>
   </div>
  </div>
 
