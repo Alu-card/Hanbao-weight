@@ -300,6 +300,61 @@
    flex: 1;
    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
+
+  .bili-bv-area {
+   display: flex; gap: 8px;
+   margin-bottom: 10px;
+  }
+
+  /* ========== 嵌入式播放器浮层 ========== */
+  .embed-overlay {
+   display: none;
+   position: fixed;
+   top: 0; left: 0; right: 0; bottom: 0;
+   background: rgba(0,0,0,0.75);
+   z-index: 1000;
+   justify-content: center;
+   align-items: center;
+   padding: 12px;
+  }
+  .embed-overlay.active { display: flex; }
+  .embed-box {
+   width: 100%;
+   max-width: 560px;
+   max-height: 90vh;
+   background: #0d0d1a;
+   border-radius: 14px;
+   overflow: hidden;
+   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+   animation: embedIn 0.3s ease;
+  }
+  @keyframes embedIn {
+   from { opacity: 0; transform: scale(0.92) translateY(20px); }
+   to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .embed-header {
+   display: flex; align-items: center; justify-content: space-between;
+   padding: 10px 14px;
+   border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .embed-title { font-size: 14px; font-weight: 600; }
+  .embed-close {
+   width: 28px; height: 28px; border: none; border-radius: 6px;
+   background: rgba(255,255,255,0.08);
+   color: #fff; font-size: 12px; cursor: pointer;
+   display: flex; align-items: center; justify-content: center;
+  }
+  .embed-close:active { background: rgba(255,255,255,0.15); }
+  .embed-body {
+   position: relative;
+   width: 100%;
+   padding-top: 56.25%; /* 16:9 */
+  }
+  .embed-body iframe {
+   position: absolute;
+   top: 0; left: 0; width: 100%; height: 100%;
+   border: none;
+  }
  </style>
 </head>
 <body>
@@ -352,11 +407,11 @@
  <!-- ===== B站面板 ===== -->
  <div class="panel" id="panel-bili">
   <div class="bili-header">
-   <div class="bili-user" onclick="window.open('https://space.bilibili.com/122627054','_blank')">
+   <div class="bili-user" onclick="embedOpen('https://space.bilibili.com/122627054')">
     <div class="bili-avatar">D</div>
     <div class="bili-info">
      <div class="bili-name">丹德里恩的小曲</div>
-     <div class="bili-sub">点击进入个人空间</div>
+     <div class="bili-sub">点击进入个人空间（嵌入式）</div>
     </div>
    </div>
   </div>
@@ -364,27 +419,44 @@
    <input class="bili-search" id="biliSearch" placeholder="搜B站视频..." maxlength="50" onkeydown="if(event.key==='Enter')biliSearch()">
    <button class="bili-search-btn" onclick="biliSearch()">搜索</button>
   </div>
+  <div class="bili-bv-area">
+   <input class="bili-search" id="biliBvInput" placeholder="输入BV号直接播放..." maxlength="20" onkeydown="if(event.key==='Enter')playBv()">
+   <button class="bili-search-btn" onclick="playBv()">播放</button>
+  </div>
   <div class="bili-links">
-   <div class="bili-link-card" onclick="window.open('https://space.bilibili.com/122627054/video','_blank')">
+   <div class="bili-link-card" onclick="embedOpen('https://space.bilibili.com/122627054/video')">
     <div class="bili-link-title">我的投稿</div>
-    <div class="bili-link-desc">看看我发了啥</div>
+    <div class="bili-link-desc">嵌入式浏览</div>
    </div>
-   <div class="bili-link-card" onclick="window.open('https://space.bilibili.com/122627054/favlist','_blank')">
+   <div class="bili-link-card" onclick="embedOpen('https://space.bilibili.com/122627054/favlist')">
     <div class="bili-link-title">我的收藏</div>
-    <div class="bili-link-desc">收藏夹里的宝贝</div>
+    <div class="bili-link-desc">嵌入式浏览</div>
    </div>
-   <div class="bili-link-card" onclick="window.open('https://www.bilibili.com/v/popular/rank/all','_blank')">
+   <div class="bili-link-card" onclick="embedOpen('https://www.bilibili.com/v/popular/rank/all')">
     <div class="bili-link-title">热门排行</div>
-    <div class="bili-link-desc">B站全站热门</div>
+    <div class="bili-link-desc">嵌入式浏览</div>
    </div>
-   <div class="bili-link-card" onclick="window.open('https://www.bilibili.com','_blank')">
+   <div class="bili-link-card" onclick="embedOpen('https://www.bilibili.com')">
     <div class="bili-link-title">B站首页</div>
-    <div class="bili-link-desc">回B站逛逛</div>
+    <div class="bili-link-desc">嵌入式浏览</div>
    </div>
   </div>
   <div class="bili-hot" id="biliHot">
-   <div class="bili-hot-title">B站热搜</div>
+   <div class="bili-hot-title">B站热搜（点击嵌入式播放）</div>
    <div class="bili-hot-list" id="biliHotList">加载中...</div>
+  </div>
+ </div>
+
+ <!-- ===== 嵌入式播放器浮层 ===== -->
+ <div class="embed-overlay" id="embedOverlay" onclick="embedClose(event)">
+  <div class="embed-box" id="embedBox">
+   <div class="embed-header">
+    <span class="embed-title" id="embedTitle">B站播放器</span>
+    <button class="embed-close" onclick="embedClose()">X</button>
+   </div>
+   <div class="embed-body" id="embedBody">
+    <iframe id="embedIframe" src="" frameborder="0" allowfullscreen></iframe>
+   </div>
   </div>
  </div>
 
@@ -593,7 +665,44 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 function biliSearch() {
  const q = document.getElementById('biliSearch').value.trim();
  if (!q) return;
- window.open(`https://search.bilibili.com/all?keyword=${encodeURIComponent(q)}`, '_blank');
+ embedOpen('https://search.bilibili.com/all?keyword=' + encodeURIComponent(q), '搜索: ' + q);
+}
+
+// BV号播放
+function playBv() {
+ const bv = document.getElementById('biliBvInput').value.trim();
+ if (!bv) return;
+ // 智能提取BV号
+ const match = bv.match(/[Bb][Vv][0-9a-zA-Z]{10,}/);
+ let bvid = match ? match[0].toUpperCase() : bv;
+ if (!bvid.startsWith('BV')) { bvid = 'BV' + bvid; }
+ document.getElementById('biliBvInput').value = bvid;
+ embedVideo('https://player.bilibili.com/player.html?bvid=' + bvid, '播放: ' + bvid);
+}
+
+// 嵌入式播放器 - 页面/搜索
+function embedOpen(url, title) {
+ document.getElementById('embedTitle').textContent = title || 'B站';
+ document.getElementById('embedIframe').src = url;
+ document.getElementById('embedOverlay').classList.add('active');
+ // 防止页面滚动
+ document.body.style.overflow = 'hidden';
+}
+
+// 嵌入式播放器 - 视频专用
+function embedVideo(url, title) {
+ document.getElementById('embedTitle').textContent = title || 'B站视频';
+ document.getElementById('embedIframe').src = url;
+ document.getElementById('embedOverlay').classList.add('active');
+ document.body.style.overflow = 'hidden';
+}
+
+// 关闭浮层
+function embedClose(e) {
+ if (e && e.target !== document.getElementById('embedOverlay') && e.target.closest('.embed-box')) return;
+ document.getElementById('embedOverlay').classList.remove('active');
+ document.getElementById('embedIframe').src = ''; // 停掉视频节省流量
+ document.body.style.overflow = '';
 }
 
 // 热搜数据
@@ -611,7 +720,7 @@ function loadBiliHot() {
  const list = document.getElementById('biliHotList');
  const hot = [...BILI_HOT].sort(() => Math.random() - 0.5).slice(0, 10);
  list.innerHTML = hot.map((h, i) => `
-  <div class="bili-hot-item" onclick="window.open('https://search.bilibili.com/all?keyword=${encodeURIComponent(h)}','_blank')">
+  <div class="bili-hot-item" onclick="embedOpen('https://search.bilibili.com/all?keyword=${encodeURIComponent(h)}','热搜: ${h}')">
    <div class="bili-hot-rank ${i < 3 ? 'top3' : ''}">${i + 1}</div>
    <div class="bili-hot-text">${h}</div>
   </div>
