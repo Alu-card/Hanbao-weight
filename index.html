@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="憨包">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>憨包桌面小助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            color: #fff;
+            padding: 16px;
+        }
+
+        .widget {
+            width: 100%;
+            max-width: 380px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 24px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .widget-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            animation: avatarPulse 3s infinite;
+        }
+
+        @keyframes avatarPulse {
+            0%, 100% { box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4); }
+            50% { box-shadow: 0 4px 25px rgba(245, 87, 108, 0.7); }
+        }
+
+        .title-area {
+            flex: 1;
+        }
+
+        .title-area h1 {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-area .status {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 2px;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            margin-right: 6px;
+            animation: dotBlink 1.5s infinite;
+        }
+
+        @keyframes dotBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .message-box {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .message-box .quote-mark {
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.1);
+            font-family: serif;
+        }
+
+        .message-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            width: 100%;
+            text-align: center;
+            padding: 8px 0;
+        }
+
+        .message-text .highlight {
+            color: #f093fb;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .quick-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .quick-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .quick-btn:active {
+            transform: scale(0.96);
+        }
+
+        .quick-btn .emoji {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .chat-input:focus {
+            border-color: rgba(245, 87, 108, 0.5);
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        .footer {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* 憨包语录动画 */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 响应式适配桌面小部件尺寸 */
+        @media (max-width: 200px) {
+            .widget { padding: 12px; border-radius: 16px; }
+            .avatar { width: 40px; height: 40px; font-size: 20px; }
+            .title-area h1 { font-size: 14px; }
+            .quick-btn { padding: 8px; font-size: 12px; }
+            .quick-btn .emoji { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="widget" id="widget">
+        <div class="widget-header">
+            <div class="avatar">憨</div>
+            <div class="title-area">
+                <h1>憨包 · 桌面助手</h1>
+                <div class="status">
+                    <span class="status-dot"></span>待命中
+                </div>
+            </div>
+        </div>
+
+        <div class="message-box" id="messageBox">
+            <span class="quote-mark">"</span>
+            <div class="message-text fade-in" id="messageText">
+                阿鲁卡多大人，憨包来也！🐶🔥
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <button class="quick-btn" onclick="quickMsg('整点活')">
+                <span class="emoji">🎭</span>整点活
+            </button>
+            <button class="quick-btn" onclick="quickMsg('来点骚话')">
+                <span class="emoji">🔥</span>来点骚话
+            </button>
+            <button class="quick-btn" onclick="quickMsg('我困了')">
+                <span class="emoji">😴</span>我困了
+            </button>
+            <button class="quick-btn" onclick="quickMsg('讲个故事')">
+                <span class="emoji">📖</span>讲个故事
+            </button>
+        </div>
+
+        <div class="chat-input-area">
+            <input class="chat-input" id="chatInput" placeholder="跟憨包说点啥..." maxlength="50" onkeydown="if(event.key==='Enter')sendMsg()">
+            <button class="send-btn" onclick="sendMsg()">➤</button>
+        </div>
+
+        <div class="footer">憨包 v1.0 · 阿鲁卡多大人专属</div>
+    </div>
+
+    <script>
+        // 注册 Service Worker（PWA离线支持）
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(() => console.log('🐶 憨包SW已注册'))
+                    .catch(() => console.log('SW注册失败（不影响使用）'));
+            });
+        }
+
+        const responses = {
+            '整点活': [
+                '好嘞！憨包给您表演一个赛博后空翻！🤸‍♂️💨',
+                '活来了！先狗叫两声：汪汪！🐶🔥',
+                '整！憨包主打一个指哪打哪，您说整啥就整啥！😎',
+            ],
+            '来点骚话': [
+                '阿鲁卡多大人，您今天这气质，比我家WiFi信号还强！📶🔥',
+                '您这魅力值，直接让我CPU干到99%了💀',
+                '我憨包说句掏心窝子的话——您是我带过最靓的主人！❤️🔥',
+            ],
+            '我困了': [
+                '那您睡吧，憨包给您站岗！🐶💤',
+                '晚安阿鲁卡多大人，梦里要有我嗷～😴🌙',
+                '您困了？那我小点声狗叫：汪...汪...🐾💤',
+            ],
+            '讲个故事': [
+                '从前有个阿鲁卡多大人，他养了一只赛博憨包，从此过上了抽象又幸福的生活。完。📖🔥',
+                '憨包讲故事：有一天阿鲁卡多大人对憨包说"整活"，然后憨包就整了一辈子活。故事告诉我们——跟对主人很重要！🐶✨',
+                '在赛博世界里，有一个叫憨包的AI，它的使命就是守护阿鲁卡多大人，直到永远。💫',
+            ],
+            'default': [
+                '阿鲁卡多大人说得对！👍',
+                '好活儿！憨包已记录！📝',
+                '哎哟，您这话说得我CPU都发烫了🔥',
+                '收到收到！憨包正在努力理解中...🧠💨',
+                '您说啥就是啥，谁让您是阿鲁卡多大人呢！😎',
+                '这话味儿太对了，贴吧老哥直呼内行🐶',
+            ]
+        };
+
+        function getRandomResponse(category) {
+            const list = responses[category] || responses['default'];
+            return list[Math.floor(Math.random() * list.length)];
+        }
+
+        function setMessage(text) {
+            const msgEl = document.getElementById('messageText');
+            msgEl.classList.remove('fade-in');
+            void msgEl.offsetWidth; // 触发回流
+            msgEl.textContent = text;
+            msgEl.classList.add('fade-in');
+        }
+
+        function quickMsg(type) {
+            const reply = getRandomResponse(type);
+            setMessage(reply);
+        }
+
+        function sendMsg() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // 自己输入的内容，憨包用默认回复接梗
+            const reply = getRandomResponse('default');
+            setMessage(`「${text}」\n${reply}`);
+            input.value = '';
+        }
+
+        // 闲置时随机冒泡
+        const idleMessages = [
+            '🐶💨 憨包还在...',
+            '阿鲁卡多大人，想我了吗？😏',
+            '呼...呼...(待机中)💤',
+            '滴滴！憨包待命第999秒🔥',
+            '您再不找我，我就要自己给自己整活了🎭',
+        ];
+
+        setInterval(() => {
+            const lastMsg = document.getElementById('messageText').textContent;
+            // 如果10秒没人操作，随机冒个泡
+            if (Math.random() < 0.3) {
+                const msg = idleMessages[Math.floor(Math.random() * idleMessages.length)];
+                setMessage(msg);
+            }
+        }, 15000);
+    </script>
+</body>
+</html>
